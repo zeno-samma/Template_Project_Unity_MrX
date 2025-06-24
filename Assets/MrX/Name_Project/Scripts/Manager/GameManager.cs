@@ -11,6 +11,7 @@ namespace MrX.Name_Project
         private PlayerData playerData;
         public Player player; // Kéo đối tượng Hero trong Scene vào đây
         private string saveFilePath;
+        private bool isDataDirty = false; // << "CỜ BẨN"
         public enum GameState//Giá trị mặc định của enum là đầu tiên.
         {
             NONE, //Rỗng
@@ -24,8 +25,22 @@ namespace MrX.Name_Project
         void Awake()
         {
             saveFilePath = Path.Combine(Application.persistentDataPath, "savedata.json");
-            Ins = this;
+            // Singleton Pattern
+            if (Ins != null && Ins != this)
+            {
+                Destroy(gameObject);
+            }
+            else
+            {
+                Ins = this;
+                DontDestroyOnLoad(gameObject); // Giữ GameManager tồn tại giữa các scene
+            }
             LoadGame();
+        }
+        // Hàm công khai để các script khác có thể "báo hiệu" có thay đổi
+        public void MarkDataAsDirty()
+        {
+            isDataDirty = true;
         }
         void Start()
         {
@@ -78,6 +93,9 @@ namespace MrX.Name_Project
         public void SaveGame()
         {
 
+            // Chỉ thực hiện lưu nếu có thay đổi
+            if (!isDataDirty) return;
+            Debug.Log("Data was dirty, SAVING GAME...");
             PlayerData dataToSave = player.GetDataToSave();
             dataToSave.version = Application.version; // << LƯU PHIÊN BẢN HIỆN TẠI
             dataToSave.gold = currentScore;
@@ -85,6 +103,8 @@ namespace MrX.Name_Project
             string json = JsonUtility.ToJson(dataToSave, true);
             File.WriteAllText(saveFilePath, json);
             Debug.Log("Lưu game với version: " + dataToSave.version);
+            // Sau khi lưu xong, reset cờ
+            isDataDirty = false;
         }
 
         public void LoadGame()
@@ -125,6 +145,12 @@ namespace MrX.Name_Project
             currentScore = 0;
             SaveGame(); // Gọi SaveGame để tạo file save mới với phiên bản hiện tại và score = 0
         }
+        // Hàm đặc biệt của Unity
+        void OnApplicationQuit()
+        {
+            Debug.Log("Application quitting...");
+            SaveGame(); // Gọi hàm save lần cuối
+        }
         public void PlayGame()///1.Sau khi ấn nút play
         {
             UpdateGameState(GameState.PLAYING);
@@ -132,7 +158,7 @@ namespace MrX.Name_Project
         }
         public void ActivePlayer()
         {
-            
+
             // if (m_curPlayer)
             //     Destroy(m_curPlayer.gameObject);
 

@@ -45,6 +45,9 @@ namespace MrX.Name_Project
             // (Kiểm tra xem có đủ vàng không...)
             healthLevel++;
             // (Trừ vàng...)
+            // << BÁO HIỆU CHO GAMEMANAGER >>
+            // GameManager.Ins.SaveGame();//Dùng cho ít lần thay đổi và các thay đổi quan trọng(Qua một chương, hoàn thành được thành tựu)
+            // GameManager.Ins.MarkDataAsDirty();//Dùng cho trường hợp nhặt liên tục 10 coins
         }
 
     }
