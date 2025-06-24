@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace MrX.Name_Project
 {
-    public class GameManager : MonoBehaviour
+    public class UIManager : MonoBehaviour
     {
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start()
@@ -16,5 +16,6 @@ namespace MrX.Name_Project
 
         }
     }
-
 }
+
+
