@@ -19,7 +19,6 @@ public class LeaderboardsPlayerItem : MonoBehaviour
     {
         selectButton.onClick.AddListener(Clicked);
     }
-
     
     public void Initialize(LeaderboardEntry player)
     {
@@ -31,7 +30,8 @@ public class LeaderboardsPlayerItem : MonoBehaviour
     
     private void Clicked()
     {
-        Debug.Log("TODO -> Open profile: " + player.PlayerName);
+        PlayerProfileMenu panel = (PlayerProfileMenu)PanelManager.Get("player_profile");
+        panel.Open(player.PlayerId, player.PlayerName);
     }
     
 }

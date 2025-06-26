@@ -7,7 +7,7 @@ public class PanelManager : MonoBehaviour
     
     private Dictionary<string, Panel> panels = new Dictionary<string, Panel>();
     private bool initialized = false;
-    private Canvas[] canvas = null;
+    // private Canvas[] canvas = null;
     private static PanelManager singleton = null;
     
     public static PanelManager Singleton
@@ -29,27 +29,19 @@ public class PanelManager : MonoBehaviour
 
     private void Initialize()
     {
-        if (initialized) { return; }
+        if (initialized) return;
         initialized = true;
+        
         panels.Clear();
-        canvas = FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        if (canvas != null)
+        // Tìm tất cả các Panel trong project, kể cả những cái đang bị tắt
+        var allPanels = FindObjectsByType<Panel>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var panel in allPanels)
         {
-            for (int i = 0; i < canvas.Length; i++)
+            if (!string.IsNullOrEmpty(panel.ID) && !panels.ContainsKey(panel.ID))
             {
-                Panel[] list = canvas[i].gameObject.GetComponentsInChildren<Panel>(true);
-                if (list != null)
-                {
-                    for (int j = 0; j < list.Length; j++)
-                    {
-                        if (string.IsNullOrEmpty(list[j].ID) == false && panels.ContainsKey(list[j].ID) == false)
-                        {
-                            list[j].Initialize();
-                            list[j].Canvas = canvas[i];
-                            panels.Add(list[j].ID, list[j]);
-                        }
-                    }
-                }
+                panels.Add(panel.ID, panel);
+                panel.Initialize();
+                panel.Close(); // Đóng tất cả các panel khi bắt đầu để đảm bảo trạng thái sạch
             }
         }
     }
@@ -62,7 +54,7 @@ public class PanelManager : MonoBehaviour
         }
     }
     
-    public static Panel GetSingleton(string id)
+    public static Panel Get(string id)
     {
         if (Singleton.panels.ContainsKey(id))
         {
@@ -73,16 +65,39 @@ public class PanelManager : MonoBehaviour
     
     public static void Open(string id)
     {
-        var panel = GetSingleton(id);
+        var panel = Get(id);
         if (panel != null)
         {
             panel.Open();
         }
     }
-    
+    // --- HÀM MỚI QUAN TRỌNG ---
+    // Hàm này sẽ thay thế cho Open() và Close() riêng lẻ
+    public static void Show(string id)
+    {
+        // Đóng tất cả các panel khác
+        foreach (var panel in Singleton.panels)
+        {
+            if (panel.Key != id && panel.Value.IsOpen)
+            {
+                panel.Value.Close();
+            }
+        }
+
+        // Mở panel được yêu cầu
+        var panelToShow = Get(id);
+        if (panelToShow != null)
+        {
+            panelToShow.Open();
+        }
+        else
+        {
+            Debug.LogWarning($"PanelManager: Panel with ID '{id}' not found!");
+        }
+    }
     public static void Close(string id)
     {
-        var panel = GetSingleton(id);
+        var panel = Get(id);
         if (panel != null)
         {
             panel.Close();

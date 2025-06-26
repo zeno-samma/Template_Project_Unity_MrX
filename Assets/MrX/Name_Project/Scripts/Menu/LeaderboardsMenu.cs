@@ -122,6 +122,7 @@ public class LeaderboardsMenu : Panel
     private void ClosePanel()
     {
         Close();
+        PanelManager.Show("main"); // "main" là ID của MainMenuPanel của bạn
     }
 
     private void ClearPlayersList()

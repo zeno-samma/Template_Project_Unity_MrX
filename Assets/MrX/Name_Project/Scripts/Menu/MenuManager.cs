@@ -7,10 +7,10 @@ using Unity.Services.Core;
 
 public class MenuManager : MonoBehaviour
 {
-    
+
     private bool initialized = false;
     private bool eventsInitialized = false;
-    
+
     private static MenuManager singleton = null;
 
     public static MenuManager Singleton
@@ -22,7 +22,7 @@ public class MenuManager : MonoBehaviour
                 singleton = FindFirstObjectByType<MenuManager>();
                 singleton.Initialize();
             }
-            return singleton; 
+            return singleton;
         }
     }
 
@@ -31,7 +31,7 @@ public class MenuManager : MonoBehaviour
         if (initialized) { return; }
         initialized = true;
     }
-    
+
     private void OnDestroy()
     {
         if (singleton == this)
@@ -58,7 +58,7 @@ public class MenuManager : MonoBehaviour
                 options.SetProfile("default_profile");
                 await UnityServices.InitializeAsync();
             }
-            
+
             if (!eventsInitialized)
             {
                 SetupEvents();
@@ -75,6 +75,8 @@ public class MenuManager : MonoBehaviour
         }
         catch (Exception exception)
         {
+            // In ra thông báo lỗi chi tiết từ server để bạn debug
+            Debug.LogError($"Exception : {exception.Message}");
             ShowError(ErrorMenu.Action.StartService, "Failed to connect to the network.", "Retry");
         }
     }
@@ -86,16 +88,20 @@ public class MenuManager : MonoBehaviour
         {
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
         }
-        catch (AuthenticationException exception)
+        catch (AuthenticationException)
         {
+            // In ra thông báo lỗi chi tiết từ server để bạn debug
+            // Debug.LogError($"Authentication Failed: {exception.Message}");
             ShowError(ErrorMenu.Action.OpenAuthMenu, "Failed to sign in.", "OK");
         }
-        catch (RequestFailedException exception)
+        catch (RequestFailedException)
         {
+            // // In ra thông báo lỗi chi tiết từ server để bạn debug
+            // Debug.LogError($"RequestFailedException Failed: {exception.Message}");
             ShowError(ErrorMenu.Action.SignIn, "Failed to connect to the network.", "Retry");
         }
     }
-    
+
     public async void SignInWithUsernameAndPasswordAsync(string username, string password)
     {
         PanelManager.Open("loading");
@@ -103,16 +109,20 @@ public class MenuManager : MonoBehaviour
         {
             await AuthenticationService.Instance.SignInWithUsernamePasswordAsync(username, password);
         }
-        catch (AuthenticationException exception)
+        catch (AuthenticationException)
         {
+            // // In ra thông báo lỗi chi tiết từ server để bạn debug
+            // Debug.LogError($"Authentication Failed: {exception.Message}");
             ShowError(ErrorMenu.Action.OpenAuthMenu, "Username or password is wrong.", "OK");
         }
-        catch (RequestFailedException exception)
+        catch (RequestFailedException)
         {
+            // // In ra thông báo lỗi chi tiết từ server để bạn debug
+            // Debug.LogError($"RequestFailedException Failed: {exception.Message}");
             ShowError(ErrorMenu.Action.OpenAuthMenu, "Failed to connect to the network.", "OK");
         }
     }
-    
+
     public async void SignUpWithUsernameAndPasswordAsync(string username, string password)
     {
         PanelManager.Open("loading");
@@ -120,23 +130,27 @@ public class MenuManager : MonoBehaviour
         {
             await AuthenticationService.Instance.SignUpWithUsernamePasswordAsync(username, password);
         }
-        catch (AuthenticationException exception)
+        catch (AuthenticationException)
         {
+            // // In ra thông báo lỗi chi tiết từ server để bạn debug
+            // Debug.LogError($"Authentication Failed: {exception.Message}");
             ShowError(ErrorMenu.Action.OpenAuthMenu, "Failed to sign you up.", "OK");
         }
-        catch (RequestFailedException exception)
+        catch (RequestFailedException)
         {
+            // // In ra thông báo lỗi chi tiết từ server để bạn debug
+            // Debug.LogError($"RequestFailedException Failed: {exception.Message}");
             ShowError(ErrorMenu.Action.OpenAuthMenu, "Failed to connect to the network.", "OK");
         }
     }
-    
+
     public void SignOut()
     {
         AuthenticationService.Instance.SignOut();
         PanelManager.CloseAll();
         PanelManager.Open("auth");
     }
-    
+
     private void SetupEvents()
     {
         eventsInitialized = true;
@@ -150,20 +164,20 @@ public class MenuManager : MonoBehaviour
             PanelManager.CloseAll();
             PanelManager.Open("auth");
         };
-        
+
         AuthenticationService.Instance.Expired += () =>
         {
             SignInAnonymouslyAsync();
         };
     }
-    
+
     private void ShowError(ErrorMenu.Action action = ErrorMenu.Action.None, string error = "", string button = "")
     {
         PanelManager.Close("loading");
-        ErrorMenu panel = (ErrorMenu)PanelManager.GetSingleton("error");
+        ErrorMenu panel = (ErrorMenu)PanelManager.Get("error");
         panel.Open(action, error, button);
     }
-    
+
     private async void SignInConfirmAsync()
     {
         try
@@ -177,8 +191,8 @@ public class MenuManager : MonoBehaviour
         }
         catch
         {
-            
+
         }
     }
-    
+
 }

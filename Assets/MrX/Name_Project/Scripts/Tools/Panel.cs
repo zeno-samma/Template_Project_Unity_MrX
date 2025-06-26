@@ -6,7 +6,7 @@ public class Panel : MonoBehaviour
 {
 
     [SerializeField] private string id = ""; public string ID { get { return id; } }
-    [SerializeField] private RectTransform container = null;
+    // [SerializeField] private RectTransform container = null;
 
     private bool initialized = false; public bool IsInitialized { get { return initialized; } }
     private bool isOpen = false; public bool IsOpen { get { return isOpen; } }
@@ -14,28 +14,26 @@ public class Panel : MonoBehaviour
     
     public virtual void Awake()
     {
-        Initialize();
+        // Initialize();
     }
 
     public virtual void Initialize()
     {
         if (initialized) { return; }
         initialized = true;
-        Close();
+        // Close();
     }
 
     public virtual void Open()
     {
-        if (initialized == false) { Initialize(); }
-        transform.SetAsLastSibling();
-        container.gameObject.SetActive(true);
+        transform.SetAsLastSibling(); // Đảm bảo panel mới mở luôn nằm trên cùng
+        gameObject.SetActive(true);
         isOpen = true;
     }
 
     public virtual void Close()
     {
-        if (initialized == false) { Initialize(); }
-        container.gameObject.SetActive(false);
+        gameObject.SetActive(false);
         isOpen = false;
     }
     
