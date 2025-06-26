@@ -14,6 +14,8 @@ public class MainMenu : Panel
     [SerializeField] private Button logoutButton = null;
     [SerializeField] private Button leaderboardsButton = null;
     [SerializeField] private Button friendsButton = null;
+    [SerializeField] private Button renameButton = null;
+    [SerializeField] private Button customizationButton = null;
 
     private bool isFriendsServiceInitialized = false;
 
@@ -26,6 +28,8 @@ public class MainMenu : Panel
         logoutButton.onClick.AddListener(SignOut);
         leaderboardsButton.onClick.AddListener(Leaderboards);
         friendsButton.onClick.AddListener(Friends);
+        renameButton.onClick.AddListener(RenamePlayer);
+        customizationButton.onClick.AddListener(Customization);
         base.Initialize();
     }
 
@@ -38,6 +42,11 @@ public class MainMenu : Panel
             InitializeFriendsServiceAsync();
         }
         base.Open();
+    }
+
+    private void Customization()
+    {
+        PanelManager.Open("customization");
     }
 
     private async void InitializeFriendsServiceAsync()
@@ -56,11 +65,22 @@ public class MainMenu : Panel
 
     private void SignOut()
     {
-        MenuManager.Singleton.SignOut();
-        isFriendsServiceInitialized = false;
+        // MenuManager.Singleton.SignOut();
+        // isFriendsServiceInitialized = false;
 
-        // Dùng Show() để chuyển về màn hình đăng nhập
-        PanelManager.Show("auth");
+        // // Dùng Show() để chuyển về màn hình đăng nhập
+        // PanelManager.Show("auth");
+        ActionConfirmMenu panel = (ActionConfirmMenu)PanelManager.Get("action_confirm");
+        panel.Open(SignOutResult, "Are you sure that you want to sign out?", "Yes", "No");
+    }
+
+    private void SignOutResult(ActionConfirmMenu.Result result)
+    {
+        if (result == ActionConfirmMenu.Result.Positive)
+        {
+            MenuManager.Singleton.SignOut();
+            isFriendsServiceInitialized = false;
+        }
     }
 
     private void UpdatePlayerNameUI()
@@ -78,6 +98,28 @@ public class MainMenu : Panel
     {
         // Tương tự, chỉ cần gọi Show()
         PanelManager.Show("friends");
+    }
+
+    private void RenamePlayer()
+    {
+        GetInputMenu panel = (GetInputMenu)PanelManager.Get("input");
+        panel.Open(RenamePlayerConfirm, GetInputMenu.Type.String, 20, "Enter a name for your account.", "Send", "Cancel");
+    }
+
+    private async void RenamePlayerConfirm(string input)
+    {
+        renameButton.interactable = false;
+        try
+        {
+            await AuthenticationService.Instance.UpdatePlayerNameAsync(input);
+            UpdatePlayerNameUI();
+        }
+        catch
+        {
+            ErrorMenu panel = (ErrorMenu)PanelManager.Get("error");
+            panel.Open(ErrorMenu.Action.None, "Failed to change the account name.", "OK");
+        }
+        renameButton.interactable = true;
     }
 
 }
