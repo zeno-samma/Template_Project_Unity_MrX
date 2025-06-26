@@ -42,8 +42,8 @@ public class MenuManager : MonoBehaviour
 
     private void Awake()
     {
-        Application.runInBackground = true;
-        StartClientService();
+        // Application.runInBackground = true;
+        // StartClientService();
     }
 
     public async void StartClientService()
