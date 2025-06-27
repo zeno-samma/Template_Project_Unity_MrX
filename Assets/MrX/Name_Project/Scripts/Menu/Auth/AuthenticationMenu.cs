@@ -47,6 +47,7 @@ public class AuthenticationMenu : Panel
         }
     }
 
+
     private void SignUp()
     {
         string user = usernameInput.text.Trim();

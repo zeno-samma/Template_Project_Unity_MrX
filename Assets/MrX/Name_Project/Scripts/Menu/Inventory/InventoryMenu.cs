@@ -39,7 +39,7 @@ namespace MrX.Name_Project
 
             // Bước B: Gọi EconomyManager để lấy dữ liệu túi đồ
             var inventoryResult = await economyManager.GetPlayerInventoryAsync();
-
+            Debug.Log($"3. Phản hồi thành công, có {inventoryResult.PlayersInventoryItems.Count} loại inventory.");
             if (inventoryResult != null && inventoryResult.PlayersInventoryItems != null)
             {
                 Debug.Log($"Found {inventoryResult.PlayersInventoryItems.Count} items in inventory.");
@@ -67,9 +67,9 @@ namespace MrX.Name_Project
             {
                 foreach (var currency in balances.Balances)
                 {
-                    if (currency.CurrencyId == EconomyConst.ID_GOLD_CURRENCY)//ID
+                    if (currency.CurrencyId == EconomyConst.DIAMOND)//ID
                     {
-                        TxtGoldCounting.text = $"Gold: {currency.Balance}";
+                        TxtGoldCounting.text = $"Diamond: {currency.Balance}";
                     }
                 }
             }

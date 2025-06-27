@@ -7,15 +7,15 @@ namespace MrX.Name_Project
     public class EconomyConst
     {
         // === CURRENCIES ===
-        public const string ID_GOLD_CURRENCY = "ID_GOLD";
-        public const string ID_GEMS_CURRENCY = "GEMS"; // Ví dụ nếu có thêm
+        public const string DIAMOND = "DIAMOND";
+        public const string GEMS = "GEMS"; // Ví dụ nếu có thêm
 
         // === INVENTORY ITEMS ===
-        public const string ID_ITEM_SWORD = "ITEM_SWORD";
+        public const string ITEM_SWORD_BASIC = "ITEM_SWORD_BASIC";
         // public const string WEAPON_SWORD_FIRE = "WEAPON_SWORD_FIRE"; // Ví dụ khác
 
         // === VIRTUAL PURCHASES ===
-        public const string ID_PURCHASE_ITEM_SWORD = "ID_PURCHASE_ITEM_SWORD";
+        public const string PURCHASE_ITEM_SWORD_BASIC  = "PURCHASE_ITEM_SWORD_BASIC";
     }
 }
 
