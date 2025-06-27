@@ -16,6 +16,9 @@ public class MainMenu : Panel
     [SerializeField] private Button friendsButton = null;
     [SerializeField] private Button renameButton = null;
     [SerializeField] private Button customizationButton = null;
+    [SerializeField] private Button lobbyButton = null;
+    [SerializeField] private Button shopButton = null;
+    [SerializeField] private Button inventoryButton = null;
 
     private bool isFriendsServiceInitialized = false;
 
@@ -30,7 +33,25 @@ public class MainMenu : Panel
         friendsButton.onClick.AddListener(Friends);
         renameButton.onClick.AddListener(RenamePlayer);
         customizationButton.onClick.AddListener(Customization);
+        lobbyButton.onClick.AddListener(Lobby);
+        shopButton.onClick.AddListener(Shop);
+        inventoryButton.onClick.AddListener(Inventory);
         base.Initialize();
+    }
+
+    private void Lobby()
+    {
+        PanelManager.Open("lobby");
+    }
+
+    private void Inventory()
+    {
+        PanelManager.Open("inventory");
+    }
+
+    private void Shop()
+    {
+        PanelManager.Open("shop");
     }
 
     public override void Open()
