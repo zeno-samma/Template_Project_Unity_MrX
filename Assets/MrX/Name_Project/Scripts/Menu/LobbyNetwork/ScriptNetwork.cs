@@ -7,6 +7,7 @@ namespace MrX.Name_Project
     {
 
         [SerializeField] private Button closeButton;
+        [SerializeField] private Button joinButton;
         [SerializeField] private GameObject Network_Off;
 
         public override void Initialize()
@@ -16,6 +17,7 @@ namespace MrX.Name_Project
                 return;
             }
             closeButton.onClick.AddListener(ClosePanel);
+            joinButton.onClick.AddListener(ClosePanel);
             base.Initialize();
         }
 

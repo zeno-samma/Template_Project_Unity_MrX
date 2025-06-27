@@ -19,6 +19,9 @@ public class MainMenu : Panel
     [SerializeField] private Button lobbyButton = null;
     [SerializeField] private Button shopButton = null;
     [SerializeField] private Button inventoryButton = null;
+    [SerializeField] private Button menuButton = null;
+    [SerializeField] private Button closeButton = null;
+    [SerializeField] private GameObject container = null;
 
     private bool isFriendsServiceInitialized = false;
 
@@ -35,23 +38,38 @@ public class MainMenu : Panel
         customizationButton.onClick.AddListener(Customization);
         lobbyButton.onClick.AddListener(Lobby);
         shopButton.onClick.AddListener(Shop);
+        menuButton.onClick.AddListener(Menu);
+        closeButton.onClick.AddListener(CloseBtn);
         inventoryButton.onClick.AddListener(Inventory);
         base.Initialize();
+    }
+
+    private void CloseBtn()
+    {
+        container.SetActive(false);
+    }
+
+    private void Menu()
+    {
+        container.SetActive(true);
     }
 
     private void Lobby()
     {
         PanelManager.Open("lobby");
+        CloseBtn();
     }
 
     private void Inventory()
     {
         PanelManager.Open("inventory");
+        CloseBtn();
     }
 
     private void Shop()
     {
         PanelManager.Open("shop");
+        CloseBtn();
     }
 
     public override void Open()
@@ -68,6 +86,7 @@ public class MainMenu : Panel
     private void Customization()
     {
         PanelManager.Open("customization");
+        CloseBtn();
     }
 
     private async void InitializeFriendsServiceAsync()
@@ -113,12 +132,14 @@ public class MainMenu : Panel
     {
         // Giờ đây chỉ cần một dòng lệnh duy nhất, an toàn và rõ ràng
         PanelManager.Show("leaderboards");
+        CloseBtn();
     }
 
     private void Friends()
     {
         // Tương tự, chỉ cần gọi Show()
         PanelManager.Show("friends");
+        CloseBtn();
     }
 
     private void RenamePlayer()
