@@ -56,7 +56,7 @@ namespace MrX.Name_Project
             if (economyManager == null) return;
 
             // Gọi hàm từ EconomyManager để cộng 100 vàng (ví dụ)
-            await economyManager.GrantGoldAsync(100);
+            await economyManager.GrantGoldAsync(10);
 
             // Sau khi cộng xong, cập nhật lại UI để hiển thị số vàng mới
             await RefreshUI();
@@ -67,13 +67,23 @@ namespace MrX.Name_Project
             var balances = await economyManager.GetPlayerBalancesAsync();
             if (balances != null)
             {
+                Debug.Log($"3. Phản hồi thành công, có {balances.Balances.Count} loại tiền tệ.");
                 foreach (var currency in balances.Balances)
                 {
+                    // Debug.Log($"4. Đang kiểm tra currency ID: '{currency.CurrencyId}' với số dư: {currency.Balance}");
                     if (currency.CurrencyId == EconomyConst.ID_GOLD_CURRENCY)//ID
                     {
                         goldBalanceText.text = $"Gold: {currency.Balance}";
                     }
+                    else
+                    {
+                        // Debug.Log($"LỖI: {currency.CurrencyId}!");
+                    }
                 }
+            }
+            else
+            {
+                // Debug.LogError("Lỗi: balancesResult là null! Không thể lấy được số dư.");
             }
 
             // Tương tự, bạn có thể gọi GetPlayerInventoryAsync và hiển thị các vật phẩm

@@ -5944,9 +5944,9 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1578515188}
+  - {fileID: 1060406729}
   - {fileID: 1169754369}
   - {fileID: 1773076149}
-  - {fileID: 1060406729}
   - {fileID: 518437716}
   - {fileID: 22736101}
   - {fileID: 395779287}
@@ -9385,7 +9385,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Gold:0
+  m_text: Gold:num
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

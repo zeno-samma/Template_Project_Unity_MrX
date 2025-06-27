@@ -63,7 +63,8 @@ namespace MrX.Name_Project
             {
                 // Gọi hàm IncrementBalanceAsync của dịch vụ Economy
                 // Dùng hằng số EconomyIds.GOLD_CURRENCY để đảm bảo chính xác
-                await EconomyService.Instance.PlayerBalances.IncrementBalanceAsync(EconomyConst.ID_GOLD_CURRENCY, 10);
+                await EconomyService.Instance.PlayerBalances.IncrementBalanceAsync(EconomyConst.ID_GOLD_CURRENCY, amount);
+                // await EconomyService.Instance.PlayerBalances.DecrementBalanceAsync(EconomyConst.ID_GOLD_CURRENCY, amount);
                 Debug.Log($"Successfully granted {amount} {EconomyConst.ID_GOLD_CURRENCY}");
             }
             catch (Exception e)
