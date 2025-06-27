@@ -42,20 +42,39 @@ namespace MrX.Name_Project
         }
 
         // Hàm để thực hiện một giao dịch mua ảo
+        // public async Task<MakeVirtualPurchaseResult> MakePurchaseAsync(string purchaseId)
+        // {
+        //     try
+        //     {
+        //         // "purchaseId" phải trùng với ID bạn đã tạo trên Dashboard (ví dụ: "BUY_IRON_HELMET")
+        //         var result = await EconomyService.Instance.Purchases.MakeVirtualPurchaseAsync(purchaseId);
+        //         return result;
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         Debug.LogException(e);
+        //         return null;
+        //     }
+        // }
+        // ================================
         public async Task<MakeVirtualPurchaseResult> MakePurchaseAsync(string purchaseId)
         {
             try
             {
-                // "purchaseId" phải trùng với ID bạn đã tạo trên Dashboard (ví dụ: "BUY_IRON_HELMET")
-                var result = await EconomyService.Instance.Purchases.MakeVirtualPurchaseAsync(purchaseId);
-                return result;
+                return await EconomyService.Instance.Purchases.MakeVirtualPurchaseAsync(purchaseId);
+            }
+            catch (EconomyException e)
+            {
+                Debug.LogWarning($"[Economy] Purchase failed with code {e.ErrorCode}: {e.Message}");
+                throw; // Ném lại nguyên lỗi để ShopMenu xử lý đúng
             }
             catch (Exception e)
             {
-                Debug.LogException(e);
-                return null;
+                Debug.LogError($"[Economy] Unknown error during purchase: {e.Message}");
+                throw; // Vẫn ném lại để xử lý riêng
             }
         }
+        // =====================================
         // --- HÀM MỚI ĐỂ THÊM TIỀN ---
         public async Task GrantGoldAsync(int amount)
         {

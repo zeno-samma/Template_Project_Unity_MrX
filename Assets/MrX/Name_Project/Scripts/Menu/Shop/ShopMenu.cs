@@ -27,7 +27,7 @@ namespace MrX.Name_Project
             }
             base.Initialize();
             economyManager = FindFirstObjectByType<EconomyManager>(); // Tìm đến EconomyManager
-            // buyHelmetButton.onClick.AddListener(OnBuyHelmetClicked);
+            buyHelmetButton.onClick.AddListener(OnBuyItemClicked);
             addGoldButton.onClick.AddListener(OnAddGoldClicked);
             closeButton.onClick.AddListener(ClosePanel);
         }
@@ -38,82 +38,33 @@ namespace MrX.Name_Project
             await RefreshUI();
         }
         // ===========================================
-        // Sửa lại hàm này để nhận vào ID, giúp tái sử dụng cho nhiều vật phẩm
-        // private async void OnBuyItemClicked(string purchaseId)
-        // {
-        //     Debug.Log($"Attempting to purchase: {purchaseId}");
-        //     // Có thể hiện panel loading ở đây
-        //     // PanelManager.Show("loading");
-
-        //     try
-        //     {
-        //         // Gọi hàm mua hàng từ EconomyManager
-        //         var purchaseResult = await economyManager.MakePurchaseAsync(purchaseId);
-
-        //         // Code dưới đây chỉ chạy khi giao dịch THÀNH CÔNG
-        //         Debug.Log("Purchase successful!");
-        //         await RefreshUI(); // Cập nhật lại UI
-        //     }
-        //     catch (EconomyException e)
-        //     {
-        //         // BƯỚC QUAN TRỌNG: BẮT LỖI KHÔNG ĐỦ TIỀN
-        //         // Đây là "cái bẫy" đặc biệt chỉ dành cho lỗi "không đủ tiền".
-        //         // Từ khóa "when" giúp chúng ta lọc chính xác lý do lỗi.
-        //         Debug.LogWarning("Player does not have enough currency to make this purchase.");
-
-        //         // Hiển thị thông báo thân thiện cho người chơi
-        //         var errorPanel = (ErrorMenu)PanelManager.Get("error");
-        //         errorPanel.Open(ErrorMenu.Action.None, "You do not have enough Gold!", "OK");
-        //     }
-        //     catch (Exception e)
-        //     {
-        //         // Đây là "cái bẫy" cuối cùng, bắt tất cả các loại lỗi khác
-        //         // (mất mạng, ID sai sau khi đã sửa, lỗi server...)
-        //         Debug.LogError($"Purchase failed for other reason: {e.Message}");
-
-        //         var errorPanel = (ErrorMenu)PanelManager.Get("error");
-        //         errorPanel.Open(ErrorMenu.Action.None, "Purchase failed. Please try again later.", "OK");
-        //     }
-        //     finally
-        //     {
-        //         // (Tùy chọn nhưng nên có)
-        //         // Luôn ẩn panel loading ở đây để đảm bảo game không bị kẹt
-        //         // PanelManager.Close("loading");
-        //     }
-        // }
-
-        // Sửa lại hàm gọi sự kiện của nút Mũ Sắt
-        // private void OnBuyHelmetClicked()
-        // {
-        //     // Gọi hàm chung với ID cụ thể
-        //     OnBuyItemClicked(EconomyConst.PURCHASE_ITEM_SWORD_BASIC);
-        // }
-
-        // // Bạn cũng có thể dùng hàm chung này cho nút mua Kiếm
-        // private void OnBuySwordClicked() // Giả sử bạn có hàm này
-        // {
-        //     OnBuyItemClicked(EconomyConst.PURCHASE_ITEM_SWORD_BASIC);
-        // }
-
-        // =================================================
-
-        // private async void OnBuyHelmetClicked()
-        // {
-        //     Debug.Log("Attempting to buy helmet...");
-        //     var result = await economyManager.MakePurchaseAsync(EconomyConst.PURCHASE_ITEM_SWORD_BASIC);//ID
-
-        //     Debug.Log(EconomyConst.PURCHASE_ITEM_SWORD_BASIC);
-        //     Debug.Log(result);
-        //     if (result != null)
-        //     {
-        //         Debug.Log("Purchase successful!");
-        //         await RefreshUI(); // Cập nhật lại UI sau khi mua thành công
-        //     }
-        //     else if (result == null)
-        //     {
-        //         Debug.Log($"Purchase failed!{result}");
-        //     }
-        // }
+        private async void OnBuyItemClicked()
+        {
+            try
+            {
+                var result = await economyManager.MakePurchaseAsync(EconomyConst.PURCHASE_ITEM_SWORD_BASIC);
+                Debug.Log("✅ Purchase successful!");
+                await RefreshUI();
+            }
+            catch (EconomyException e) when (e.ErrorCode == 10504) // Không đủ tiền
+            {
+                Debug.LogWarning("❌ Not enough currency!");
+                var errorPanel = (ErrorMenu)PanelManager.Get("error");
+                errorPanel.Open(ErrorMenu.Action.None, "You do not have enough currency!", "OK");
+            }
+            catch (EconomyException e)
+            {
+                Debug.LogWarning($"❌ Economy error: {e.Message}");
+                var errorPanel = (ErrorMenu)PanelManager.Get("error");
+                errorPanel.Open(ErrorMenu.Action.None, "Purchase failed (economy error).", "OK");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"❌ Unknown error: {e.Message}");
+                var errorPanel = (ErrorMenu)PanelManager.Get("error");
+                errorPanel.Open(ErrorMenu.Action.None, "Unknown error occurred.", "OK");
+            }
+        }
         // --- HÀM MỚI ĐỂ XỬ LÝ CLICK NÚT THÊM VÀNG ---
         private async void OnAddGoldClicked()
         {
