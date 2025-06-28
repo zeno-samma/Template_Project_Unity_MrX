@@ -168,12 +168,27 @@ namespace MrX.Name_Project
                     }
                     catch (LobbyServiceException e)
                     {
-                        Debug.Log($"Lobby polling error: {e.Message}");
-                        // Chỉ shutdown khi có lỗi nghiêm trọng, không phải khi có người bị kick
-                        if (e.Reason == LobbyExceptionReason.LobbyNotFound || 
-                            e.Reason == LobbyExceptionReason.LobbyDeleted)
+                        Debug.Log($"Lobby polling error: {e.Message} - Reason: {e.Reason}");
+                        
+                        // Chỉ shutdown khi có lỗi nghiêm trọng
+                        switch (e.Reason)
                         {
-                            CleanupAndShutdown();
+                            case LobbyExceptionReason.LobbyNotFound:
+                            case LobbyExceptionReason.Unauthorized:
+                                Debug.LogWarning($"Critical lobby error detected: {e.Reason}. Shutting down...");
+                                CleanupAndShutdown();
+                                break;
+                                
+                            case LobbyExceptionReason.LobbyFull:
+                            case LobbyExceptionReason.PlayerNotFound:
+                                // Các lỗi này có thể xảy ra khi có người join/leave, không cần shutdown
+                                Debug.Log($"Non-critical lobby error: {e.Reason}");
+                                break;
+                                
+                            default:
+                                // Các lỗi khác, log nhưng không shutdown ngay
+                                Debug.LogWarning($"Unknown lobby error: {e.Reason}. Continuing...");
+                                break;
                         }
                     }
                 }
@@ -219,8 +234,28 @@ namespace MrX.Name_Project
             }
             catch (LobbyServiceException e)
             {
-                Debug.LogError($"❌ Failed to kick player {playerIdToKick}: {e.Message}");
-                // Không gọi CleanupAndShutdown ở đây vì có thể là lỗi tạm thời
+                Debug.LogError($"❌ Failed to kick player {playerIdToKick}: {e.Message} - Reason: {e.Reason}");
+                
+                // Phân loại lỗi để xử lý phù hợp
+                switch (e.Reason)
+                {
+                    case LobbyExceptionReason.PlayerNotFound:
+                        Debug.LogWarning($"Player {playerIdToKick} not found in lobby (may have already left)");
+                        break;
+                        
+                    case LobbyExceptionReason.Unauthorized:
+                        Debug.LogError("Unauthorized to kick player - check host permissions");
+                        break;
+                        
+                    case LobbyExceptionReason.LobbyNotFound:
+                        Debug.LogError("Lobby no longer exists");
+                        CleanupAndShutdown();
+                        break;
+                        
+                    default:
+                        Debug.LogError($"Unknown error while kicking player: {e.Reason}");
+                        break;
+                }
             }
             catch (Exception e)
             {
