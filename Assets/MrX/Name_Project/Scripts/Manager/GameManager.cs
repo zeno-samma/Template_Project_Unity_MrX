@@ -9,7 +9,7 @@ namespace MrX.Name_Project
         public static GameManager Ins;
         [SerializeField] private int currentScore;
         private PlayerData playerData;
-        public Player player; // Kéo đối tượng Hero trong Scene vào đây
+        public PlayerInfo player; // Kéo đối tượng Hero trong Scene vào đây
         private string saveFilePath;
         private bool isDataDirty = false; // << "CỜ BẨN"
         public enum GameState//Giá trị mặc định của enum là đầu tiên.
@@ -47,6 +47,7 @@ namespace MrX.Name_Project
             // Bắt đầu game bằng trạng thái khởi tạo
             UpdateGameState(GameState.PREPAIR);
         }
+        
         public void UpdateGameState(GameState newState)
         {
             // Tránh gọi lại logic nếu không có gì thay đổi

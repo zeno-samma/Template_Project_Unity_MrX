@@ -1,8 +1,9 @@
+using System;
 using UnityEngine;
 
 namespace MrX.Name_Project
 {
-    public class Player : MonoBehaviour
+    public class PlayerInfo : MonoBehaviour
     {
         public PlayerConfigSO playerConfig; //
 
@@ -49,7 +50,6 @@ namespace MrX.Name_Project
             // GameManager.Ins.SaveGame();//Dùng cho ít lần thay đổi và các thay đổi quan trọng(Qua một chương, hoàn thành được thành tựu)
             // GameManager.Ins.MarkDataAsDirty();//Dùng cho trường hợp nhặt liên tục 10 coins
         }
-
     }
 }
 
