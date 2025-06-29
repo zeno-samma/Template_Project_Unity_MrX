@@ -18,9 +18,10 @@ GameObject:
   - component: {fileID: 3846580068615548886}
   - component: {fileID: 8420654648322537043}
   - component: {fileID: 8660644364461881022}
+  - component: {fileID: -6056158966798883842}
   m_Layer: 0
   m_Name: NinjaGreen
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -305,3 +306,20 @@ MonoBehaviour:
   UseRigidBodyForMotion: 0
   AutoUpdateKinematicState: 1
   AutoSetKinematicOnDespawn: 1
+--- !u!114 &-6056158966798883842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5905452222306951888}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c864e847e40c194bada6f5b3a3d74f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  moveSpeed: 5
+  playerColor: {r: 0, g: 0, b: 1, a: 1}
+  scoreText: {fileID: 0}
+  nameText: {fileID: 0}

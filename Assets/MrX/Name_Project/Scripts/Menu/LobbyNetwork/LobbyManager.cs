@@ -8,8 +8,10 @@ using Unity.Services.Relay.Models; // Cần thiết cho các model của Relay
 using Unity.Netcode; // Cần thiết cho NetworkManager
 using Unity.Netcode.Transports.UTP; // Cần thiết cho UnityTransport
 using UnityEngine;
+using UnityEngine.SceneManagement; // Cần thiết cho LoadSceneMode
 using Unity.Services.Lobbies.Models;
 using Unity.Services.Lobbies;
+using Unity.Collections;
 
 namespace MrX.Name_Project
 {
@@ -32,6 +34,8 @@ namespace MrX.Name_Project
         private bool _isPlayerReady = false;
         private float _lobbyUpdateTimer;
         private bool _isKickingPlayer = false; // Thêm biến để tránh xung đột khi kick
+
+        private NetworkVariable<FixedString32Bytes> networkPlayerName = new NetworkVariable<FixedString32Bytes>("Player");
 
         private void Awake()
         {
@@ -126,7 +130,7 @@ namespace MrX.Name_Project
                 Debug.LogError($"Failed to create lobby: {e.Message}");
                 OnLobbyError?.Invoke("Failed to create lobby.");
             }
-            
+
         }
         private async void HandleLobbyPolling()
         {
@@ -141,7 +145,7 @@ namespace MrX.Name_Project
                     try
                     {
                         Lobby lobby = await LobbyService.Instance.GetLobbyAsync(JoinedLobby.Id);
-                        
+
                         // Kiểm tra xem người chơi hiện tại có còn trong lobby không
                         bool playerStillInLobby = false;
                         foreach (var player in lobby.Players)
@@ -152,7 +156,7 @@ namespace MrX.Name_Project
                                 break;
                             }
                         }
-                        
+
                         // Chỉ cập nhật nếu người chơi vẫn còn trong lobby
                         if (playerStillInLobby)
                         {
@@ -169,7 +173,7 @@ namespace MrX.Name_Project
                     catch (LobbyServiceException e)
                     {
                         Debug.Log($"Lobby polling error: {e.Message} - Reason: {e.Reason}");
-                        
+
                         // Chỉ shutdown khi có lỗi nghiêm trọng
                         switch (e.Reason)
                         {
@@ -178,13 +182,13 @@ namespace MrX.Name_Project
                                 Debug.LogWarning($"Critical lobby error detected: {e.Reason}. Shutting down...");
                                 CleanupAndShutdown();
                                 break;
-                                
+
                             case LobbyExceptionReason.LobbyFull:
                             case LobbyExceptionReason.PlayerNotFound:
                                 // Các lỗi này có thể xảy ra khi có người join/leave, không cần shutdown
                                 Debug.Log($"Non-critical lobby error: {e.Reason}");
                                 break;
-                                
+
                             default:
                                 // Các lỗi khác, log nhưng không shutdown ngay
                                 Debug.LogWarning($"Unknown lobby error: {e.Reason}. Continuing...");
@@ -197,30 +201,30 @@ namespace MrX.Name_Project
         // --- HÀM KICK ĐÃ ĐƯỢC CẬP NHẬT ---
         public async Task KickPlayer(string playerIdToKick)
         {
-            if (!IsLobbyHost()) 
+            if (!IsLobbyHost())
             {
                 Debug.LogWarning("Chỉ Host mới có quyền kick người chơi!");
                 return; // Chỉ Host mới có quyền kick
             }
-            
+
             if (playerIdToKick == AuthenticationService.Instance.PlayerId)
             {
                 Debug.LogWarning("Host không thể tự kick mình!");
                 return; // NGĂN không cho host tự kick mình
             }
-            
+
             if (_isKickingPlayer)
             {
                 Debug.LogWarning("Đang trong quá trình kick, vui lòng chờ...");
                 return; // Tránh kick nhiều lần cùng lúc
             }
-            
+
             _isKickingPlayer = true;
-            
+
             try
             {
                 Debug.Log($"Đang kick player {playerIdToKick}...");
-                
+
                 // Gửi yêu cầu kick người chơi lên server
                 await LobbyService.Instance.RemovePlayerAsync(JoinedLobby.Id, playerIdToKick);
 
@@ -235,23 +239,23 @@ namespace MrX.Name_Project
             catch (LobbyServiceException e)
             {
                 Debug.LogError($"❌ Failed to kick player {playerIdToKick}: {e.Message} - Reason: {e.Reason}");
-                
+
                 // Phân loại lỗi để xử lý phù hợp
                 switch (e.Reason)
                 {
                     case LobbyExceptionReason.PlayerNotFound:
                         Debug.LogWarning($"Player {playerIdToKick} not found in lobby (may have already left)");
                         break;
-                        
+
                     case LobbyExceptionReason.Unauthorized:
                         Debug.LogError("Unauthorized to kick player - check host permissions");
                         break;
-                        
+
                     case LobbyExceptionReason.LobbyNotFound:
                         Debug.LogError("Lobby no longer exists");
                         CleanupAndShutdown();
                         break;
-                        
+
                     default:
                         Debug.LogError($"Unknown error while kicking player: {e.Reason}");
                         break;
@@ -370,14 +374,14 @@ namespace MrX.Name_Project
             {
                 Debug.Log("Cleaning up lobby and shutting down network...");
                 JoinedLobby = null;
-                
+
                 // Luôn kiểm tra NetworkManager và trạng thái kết nối trước khi Shutdown
                 if (NetworkManager.Singleton != null && (NetworkManager.Singleton.IsClient || NetworkManager.Singleton.IsHost))
                 {
                     Debug.Log("Shutting down NetworkManager...");
                     NetworkManager.Singleton.Shutdown();
                 }
-                
+
                 // Phát tín hiệu null để UI biết cần quay về màn hình kết nối
                 OnLobbyUpdated?.Invoke(null);
             }
@@ -405,6 +409,80 @@ namespace MrX.Name_Project
             {
                 Debug.Log(e);
             }
+        }
+
+        // Hàm mới để Host bắt đầu game
+        public async Task StartGame()
+        {
+            if (!IsLobbyHost())
+            {
+                Debug.LogWarning("Chỉ Host mới có thể bắt đầu game!");
+                return;
+            }
+
+            try
+            {
+                Debug.Log("Host đang bắt đầu game...");
+
+                // Cập nhật trạng thái lobby để báo hiệu game đã bắt đầu
+                var updateLobbyOptions = new UpdateLobbyOptions
+                {
+                    Data = new Dictionary<string, DataObject>
+                    {
+                        { "GameStarted", new DataObject(DataObject.VisibilityOptions.Member, "1") }
+                    }
+                };
+
+                await LobbyService.Instance.UpdateLobbyAsync(JoinedLobby.Id, updateLobbyOptions);
+
+                // Lấy thông tin lobby mới nhất
+                JoinedLobby = await LobbyService.Instance.GetLobbyAsync(JoinedLobby.Id);
+                OnLobbyUpdated?.Invoke(JoinedLobby);
+
+                // Bắt đầu game scene
+                StartGameScene();
+
+                Debug.Log("✅ Game đã được bắt đầu!");
+            }
+            catch (LobbyServiceException e)
+            {
+                Debug.LogError($"❌ Failed to start game: {e.Message}");
+            }
+        }
+
+        // Hàm để bắt đầu scene game
+        private void StartGameScene()
+        {
+            // Tạo NetworkSceneManager để load scene
+            var sceneManager = NetworkManager.Singleton.SceneManager;
+
+            // Load scene game (bạn cần tạo scene này)
+            sceneManager.LoadScene("GameScene", LoadSceneMode.Single);
+        }
+
+        // Hàm kiểm tra xem game đã bắt đầu chưa
+        public bool IsGameStarted()
+        {
+            return JoinedLobby != null &&
+                   JoinedLobby.Data.ContainsKey("GameStarted") &&
+                   JoinedLobby.Data["GameStarted"].Value == "1";
+        }
+
+        // Hàm kiểm tra xem tất cả người chơi đã sẵn sàng chưa
+        public bool AreAllPlayersReady()
+        {
+            if (JoinedLobby == null) return false;
+
+            foreach (var player in JoinedLobby.Players)
+            {
+                // Bỏ qua host
+                if (player.Id == JoinedLobby.HostId) continue;
+                if (player.Data.ContainsKey("PlayerReady") && player.Data["PlayerReady"].Value != "1")
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

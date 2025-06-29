@@ -1,10 +1,12 @@
 using UnityEngine;
 using System.IO;
 using System;
+using Unity.Netcode;
+using System.Collections.Generic;
 
 namespace MrX.Name_Project
 {
-    public class GameManager : MonoBehaviour
+    public class GameManager : NetworkBehaviour
     {
         public static GameManager Ins;
         [SerializeField] private int currentScore;
@@ -12,6 +14,20 @@ namespace MrX.Name_Project
         public PlayerInfo player; // Kéo đối tượng Hero trong Scene vào đây
         private string saveFilePath;
         private bool isDataDirty = false; // << "CỜ BẨN"
+        
+        // Multiplayer variables
+        [Header("Multiplayer Settings")]
+        [SerializeField] private GameObject playerPrefab;
+        [SerializeField] private Transform[] spawnPoints;
+        [SerializeField] private GameObject[] collectiblePrefabs;
+        [SerializeField] private float gameDuration = 120f; // 2 phút
+        [SerializeField] private float collectibleSpawnInterval = 3f;
+        
+        private Dictionary<ulong, PlayerController> players = new Dictionary<ulong, PlayerController>();
+        private float gameTimer;
+        private float spawnTimer;
+        private bool gameStarted = false;
+        
         public enum GameState//Giá trị mặc định của enum là đầu tiên.
         {
             NONE, //Rỗng
@@ -188,6 +204,128 @@ namespace MrX.Name_Project
         //     EventBus.Publish(new GameOverEvent { finalScore = m_score });
         //     UpdateGameState(GameState.GAMEOVER);
         // }
+
+        // ========== MULTIPLAYER GAME FUNCTIONS ==========
+        
+        public override void OnNetworkSpawn()
+        {
+            if (IsServer)
+            {
+                // Server sẽ quản lý game
+                StartMultiplayerGame();
+            }
+        }
+
+        private void StartMultiplayerGame()
+        {
+            gameStarted = true;
+            gameTimer = gameDuration;
+            spawnTimer = collectibleSpawnInterval;
+            UpdateGameState(GameState.PLAYING);
+            
+            Debug.Log("Multiplayer game started!");
+        }
+
+        private void Update()
+        {
+            if (!IsServer || !gameStarted) return;
+
+            // Update game timer
+            gameTimer -= Time.deltaTime;
+            if (gameTimer <= 0)
+            {
+                EndGame();
+                return;
+            }
+
+            // Spawn collectibles
+            spawnTimer -= Time.deltaTime;
+            if (spawnTimer <= 0)
+            {
+                SpawnCollectible();
+                spawnTimer = collectibleSpawnInterval;
+            }
+        }
+
+        private void SpawnCollectible()
+        {
+            if (collectiblePrefabs.Length == 0) return;
+
+            // Chọn vị trí ngẫu nhiên
+            Vector3 randomPosition = new Vector3(
+                UnityEngine.Random.Range(-8f, 8f),
+                UnityEngine.Random.Range(-4f, 4f),
+                0f
+            );
+
+            // Chọn collectible ngẫu nhiên
+            GameObject collectiblePrefab = collectiblePrefabs[UnityEngine.Random.Range(0, collectiblePrefabs.Length)];
+            
+            // Spawn collectible
+            GameObject collectible = Instantiate(collectiblePrefab, randomPosition, Quaternion.identity);
+            collectible.GetComponent<NetworkObject>().Spawn();
+        }
+
+        private void EndGame()
+        {
+            gameStarted = false;
+            UpdateGameState(GameState.GAMEOVER);
+            
+            // Hiển thị kết quả
+            ShowGameResults();
+            
+            Debug.Log("Game ended!");
+        }
+
+        private void ShowGameResults()
+        {
+            // Tìm người chơi có điểm cao nhất
+            PlayerController winner = null;
+            int highestScore = -1;
+
+            foreach (var player in players.Values)
+            {
+                if (player.Score > highestScore)
+                {
+                    highestScore = player.Score;
+                    winner = player;
+                }
+            }
+
+            if (winner != null)
+            {
+                Debug.Log($"Winner: {winner.PlayerName} with {winner.Score} points!");
+            }
+        }
+
+        // Hàm để đăng ký người chơi
+        public void RegisterPlayer(ulong clientId, PlayerController playerController)
+        {
+            players[clientId] = playerController;
+            Debug.Log($"Player {playerController.PlayerName} registered with ID: {clientId}");
+        }
+
+        // Hàm để hủy đăng ký người chơi
+        public void UnregisterPlayer(ulong clientId)
+        {
+            if (players.ContainsKey(clientId))
+            {
+                players.Remove(clientId);
+                Debug.Log($"Player with ID {clientId} unregistered");
+            }
+        }
+
+        // Hàm để lấy thời gian còn lại
+        public float GetRemainingTime()
+        {
+            return Mathf.Max(0, gameTimer);
+        }
+
+        // Hàm để lấy danh sách người chơi
+        public Dictionary<ulong, PlayerController> GetPlayers()
+        {
+            return players;
+        }
     }
 
 }

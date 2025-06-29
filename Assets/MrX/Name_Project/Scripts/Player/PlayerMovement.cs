@@ -4,7 +4,7 @@ using UnityEngine;
 namespace MrX.Name_Project
 {
     [RequireComponent(typeof(Rigidbody2D))] // Đảm bảo đối tượng luôn có Rigidbody2D
-    public class PlayerMovement : NetworkBehaviour
+    public class PlayerMovement : MonoBehaviour
     {
         public PlayerConfigSO playerConfig; // Biến để chứa file config của người chơi
 
@@ -47,7 +47,7 @@ namespace MrX.Name_Project
         }
         void FixedUpdate()
         {
-            if (!IsOwner) return;
+            // if (!IsOwner) return;
             // Áp dụng lực di chuyển trong FixedUpdate vì nó đồng bộ với vòng lặp vật lý
             // Di chuyển bằng cách thay đổi vận tốc của Rigidbody
             rb.linearVelocity = moveInput * playerConfig.initialMoveSpeed;

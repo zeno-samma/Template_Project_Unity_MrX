@@ -93,10 +93,40 @@ namespace MrX.Name_Project
 
             // Cập nhật các thông tin khác
             lobbyNameText.text = $"Lobby Name: {lobby.Name}";
-            lobbyCodeText.text = $"Lobby Name: {lobby.LobbyCode}";
-            // startGameButton.gameObject.SetActive(isHost);
-            // ... (thêm logic kiểm tra all players ready cho startGameButton.interactable)
+            lobbyCodeText.text = $"Lobby Code: {lobby.LobbyCode}";
+            
+            // Cập nhật trạng thái nút Start Game
+            UpdateStartGameButton();
         }
+
+        // Hàm mới để cập nhật trạng thái nút Start Game
+        private void UpdateStartGameButton()
+        {
+            bool isHost = LobbyManager.Instance.IsLobbyHost();
+            bool allPlayersReady = LobbyManager.Instance.AreAllPlayersReady();
+            bool gameStarted = LobbyManager.Instance.IsGameStarted();
+            
+            // Chỉ hiện thị nút Start Game cho Host
+            startGameButton.gameObject.SetActive(isHost);
+            
+            // Chỉ cho phép bấm khi tất cả người chơi đã sẵn sàng và game chưa bắt đầu
+            startGameButton.interactable = isHost && allPlayersReady && !gameStarted;
+            
+            // Cập nhật text của nút
+            if (gameStarted)
+            {
+                startGameButton.GetComponentInChildren<TextMeshProUGUI>().text = "Game Started";
+            }
+            else if (allPlayersReady)
+            {
+                startGameButton.GetComponentInChildren<TextMeshProUGUI>().text = "Start Game";
+            }
+            else
+            {
+                startGameButton.GetComponentInChildren<TextMeshProUGUI>().text = "Waiting for Players...";
+            }
+        }
+
         // Hàm chỉ để bật/tắt các panel chính
         private void UpdateLobbyUIVisibility()
         {
@@ -229,7 +259,10 @@ namespace MrX.Name_Project
         }
 
         private void ClosePanel() { Close(); }
-        private void OnStartGameClicked() { /* ... */ }
+        private async void OnStartGameClicked() 
+        { 
+            await LobbyManager.Instance.StartGame();
+        }
         private void Update()
         {
         }
