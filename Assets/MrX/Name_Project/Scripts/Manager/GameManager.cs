@@ -6,28 +6,15 @@ using System.Collections.Generic;
 
 namespace MrX.Name_Project
 {
-    public class GameManager : NetworkBehaviour
+
+    public class GameManager : MonoBehaviour
     {
         public static GameManager Ins;
         [SerializeField] private int currentScore;
         private PlayerData playerData;
-        public PlayerInfo player; // Kéo đối tượng Hero trong Scene vào đây
+        public PlayerHealth playerHealth; // Kéo đối tượng Hero trong Scene vào đây
         private string saveFilePath;
         private bool isDataDirty = false; // << "CỜ BẨN"
-        
-        // Multiplayer variables
-        [Header("Multiplayer Settings")]
-        [SerializeField] private GameObject playerPrefab;
-        [SerializeField] private Transform[] spawnPoints;
-        [SerializeField] private GameObject[] collectiblePrefabs;
-        [SerializeField] private float gameDuration = 120f; // 2 phút
-        [SerializeField] private float collectibleSpawnInterval = 3f;
-        
-        private Dictionary<ulong, PlayerController> players = new Dictionary<ulong, PlayerController>();
-        private float gameTimer;
-        private float spawnTimer;
-        private bool gameStarted = false;
-        
         public enum GameState//Giá trị mặc định của enum là đầu tiên.
         {
             NONE, //Rỗng
@@ -38,6 +25,15 @@ namespace MrX.Name_Project
             GAMEOVER  // Thua cuộc
         }
         public GameState CurrentState { get; private set; }
+        private void OnEnable()
+        {
+            EventBus.Subscribe<PlayerDiedEvent>(GameOver);
+        }
+
+        private void OnDisable()
+        {
+            EventBus.Unsubscribe<PlayerDiedEvent>(GameOver);
+        }
         void Awake()
         {
             saveFilePath = Path.Combine(Application.persistentDataPath, "savedata.json");
@@ -63,7 +59,7 @@ namespace MrX.Name_Project
             // Bắt đầu game bằng trạng thái khởi tạo
             UpdateGameState(GameState.PREPAIR);
         }
-        
+		
         public void UpdateGameState(GameState newState)
         {
             // Tránh gọi lại logic nếu không có gì thay đổi
@@ -80,7 +76,7 @@ namespace MrX.Name_Project
                     break;
                 case GameState.PLAYING:
                     Time.timeScale = 1f;
-                    // EventBus.Publish(new SendToPoolCtrlEvent {});//Phát thông báo lần đầu để ui cập nhật lên màn hình đầu game.
+																																					   
                     break;
                 case GameState.PAUSE:
                     Time.timeScale = 0f;
@@ -104,7 +100,7 @@ namespace MrX.Name_Project
 
             // 4. Phát đi "báo cáo" về trạng thái mới cho các hệ thống khác lắng nghe
             // OnStateChanged?.Invoke(newState);
-            // EventBus.Publish(new StateUpdatedEvent { CurState = newState });//Phát thông báo lần đầu thay đổi state
+            EventBus.Publish(new StateUpdatedEvent { CurState = newState });//Phát thông báo lần đầu thay đổi state
             Debug.Log("Game state changed to: " + newState);
         }
         public void SaveGame()
@@ -113,7 +109,7 @@ namespace MrX.Name_Project
             // Chỉ thực hiện lưu nếu có thay đổi
             if (!isDataDirty) return;
             Debug.Log("Data was dirty, SAVING GAME...");
-            PlayerData dataToSave = player.GetDataToSave();
+            PlayerData dataToSave = playerHealth.GetDataToSave();
             dataToSave.version = Application.version; // << LƯU PHIÊN BẢN HIỆN TẠI
             dataToSave.gold = currentScore;
 
@@ -143,7 +139,7 @@ namespace MrX.Name_Project
                 {
                     // Cùng phiên bản, tải dữ liệu bình thường
                     currentScore = playerData.gold;
-                    player.ApplyLoadedData(playerData);
+                    playerHealth.ApplyLoadedData(playerData);
                     Debug.Log("Đã tải trò chơi từ phiên bản: " + playerData.version);
                 }
             }
@@ -151,7 +147,7 @@ namespace MrX.Name_Project
             {
                 // Không có file save, tạo dữ liệu mới
                 Debug.Log("Không tìm thấy tệp lưu, đang tạo dữ liệu mới.");
-                player.ApplyLoadedData(new PlayerData());
+                playerHealth.ApplyLoadedData(new PlayerData());
                 ResetAndCreateNewData();
             }
         }
@@ -171,7 +167,7 @@ namespace MrX.Name_Project
         public void PlayGame()///1.Sau khi ấn nút play
         {
             UpdateGameState(GameState.PLAYING);
-            ActivePlayer();
+            // ActivePlayer();
         }
         public void ActivePlayer()
         {
@@ -197,135 +193,60 @@ namespace MrX.Name_Project
         //     // Thay vì tự phát event, nó "gửi thông báo" đến EventBus
         //     EventBus.Publish(new ScoreUpdatedEvent { newScore = Pref.coins });//Phát thông báo kèm điểm khi tiêu diệt một enemy
         // }
-        // public void GameOver(PlayerDiedEvent e)//
-        // {
-        //     // Debug.Log("Vào đây khi game over");
-        //     // Gửi thông báo game over với dữ liệu điểm cuối cùng
-        //     EventBus.Publish(new GameOverEvent { finalScore = m_score });
-        //     UpdateGameState(GameState.GAMEOVER);
-        // }
-
-        // ========== MULTIPLAYER GAME FUNCTIONS ==========
-        
-        public override void OnNetworkSpawn()
+        public void GameOver(PlayerDiedEvent value)//							   
         {
-            if (IsServer)
-            {
-                // Server sẽ quản lý game
-                StartMultiplayerGame();
-            }
+					
+            UpdateGameState(GameState.GAMEOVER);							 
         }
 
-        private void StartMultiplayerGame()
-        {
-            gameStarted = true;
-            gameTimer = gameDuration;
-            spawnTimer = collectibleSpawnInterval;
-            UpdateGameState(GameState.PLAYING);
-            
-            Debug.Log("Multiplayer game started!");
-        }
+									  
+		 
+														 
+										   
+								  
 
-        private void Update()
-        {
-            if (!IsServer || !gameStarted) return;
+												  
+			 
+												
+				 
+												
+									
+				 
+			 
 
-            // Update game timer
-            gameTimer -= Time.deltaTime;
-            if (gameTimer <= 0)
-            {
-                EndGame();
-                return;
-            }
+							   
+			 
+																					  
+			 
+		 
 
-            // Spawn collectibles
-            spawnTimer -= Time.deltaTime;
-            if (spawnTimer <= 0)
-            {
-                SpawnCollectible();
-                spawnTimer = collectibleSpawnInterval;
-            }
-        }
+											   
+																					 
+		 
+												 
+																							  
+		 
 
-        private void SpawnCollectible()
-        {
-            if (collectiblePrefabs.Length == 0) return;
+													 
+													
+		 
+											  
+			 
+										 
+																	 
+			 
+		 
 
-            // Chọn vị trí ngẫu nhiên
-            Vector3 randomPosition = new Vector3(
-                UnityEngine.Random.Range(-8f, 8f),
-                UnityEngine.Random.Range(-4f, 4f),
-                0f
-            );
+												  
+									   
+		 
+										   
+		 
 
-            // Chọn collectible ngẫu nhiên
-            GameObject collectiblePrefab = collectiblePrefabs[UnityEngine.Random.Range(0, collectiblePrefabs.Length)];
-            
-            // Spawn collectible
-            GameObject collectible = Instantiate(collectiblePrefab, randomPosition, Quaternion.identity);
-            collectible.GetComponent<NetworkObject>().Spawn();
-        }
-
-        private void EndGame()
-        {
-            gameStarted = false;
-            UpdateGameState(GameState.GAMEOVER);
-            
-            // Hiển thị kết quả
-            ShowGameResults();
-            
-            Debug.Log("Game ended!");
-        }
-
-        private void ShowGameResults()
-        {
-            // Tìm người chơi có điểm cao nhất
-            PlayerController winner = null;
-            int highestScore = -1;
-
-            foreach (var player in players.Values)
-            {
-                if (player.Score > highestScore)
-                {
-                    highestScore = player.Score;
-                    winner = player;
-                }
-            }
-
-            if (winner != null)
-            {
-                Debug.Log($"Winner: {winner.PlayerName} with {winner.Score} points!");
-            }
-        }
-
-        // Hàm để đăng ký người chơi
-        public void RegisterPlayer(ulong clientId, PlayerController playerController)
-        {
-            players[clientId] = playerController;
-            Debug.Log($"Player {playerController.PlayerName} registered with ID: {clientId}");
-        }
-
-        // Hàm để hủy đăng ký người chơi
-        public void UnregisterPlayer(ulong clientId)
-        {
-            if (players.ContainsKey(clientId))
-            {
-                players.Remove(clientId);
-                Debug.Log($"Player with ID {clientId} unregistered");
-            }
-        }
-
-        // Hàm để lấy thời gian còn lại
-        public float GetRemainingTime()
-        {
-            return Mathf.Max(0, gameTimer);
-        }
-
-        // Hàm để lấy danh sách người chơi
-        public Dictionary<ulong, PlayerController> GetPlayers()
-        {
-            return players;
-        }
+													 
+															   
+		 
+						   
+		 
     }
-
 }

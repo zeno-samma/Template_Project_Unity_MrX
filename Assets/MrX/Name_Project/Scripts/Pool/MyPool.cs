@@ -7,7 +7,6 @@ namespace MrX.Name_Project
     {
         private Stack<GameObject> stack = new Stack<GameObject>();
         private GameObject baseObj;
-        private GameObject tmp;
         private ReturnToMyPool returnPool;
 
         public MyPool(GameObject baseObj)
@@ -15,21 +14,23 @@ namespace MrX.Name_Project
             this.baseObj = baseObj;
         }
 
-        public GameObject Get(bool activeValue)
+        public GameObject Get(bool activeValue, Vector3 postion)
         {
+            // Debug.Log(postion);
             if (baseObj == null)
             {
-                // Debug.LogError("Base object is null, cannot get from pool.");
                 return null;
             }
+            // KHAI BÁO 'tmp' NHƯ MỘT BIẾN CỤC BỘ
+            GameObject tmp = null;
+            // Debug.Log(stack.Count);
             while (stack.Count > 0)
             {
-                // Debug.Log("Kiểm tra và lấy ra");
                 tmp = stack.Pop();//
                 if (tmp != null)
                 {
+                    tmp.transform.position = postion;
                     tmp.SetActive(activeValue);
-                    // Debug.Log("Enemy: " + tmp.name);
                     return tmp;
                 }
                 else
@@ -37,14 +38,17 @@ namespace MrX.Name_Project
                     // Debug.LogWarning($"game object with key {baseObj.name} has been destroyed!");
                 }
             }
-            tmp = GameObject.Instantiate(baseObj, new Vector3(6f, -1f, 0f), Quaternion.identity);
+            // Debug.Log("Thêm mới");
+            tmp = GameObject.Instantiate(baseObj, postion, Quaternion.identity);
             returnPool = tmp.AddComponent<ReturnToMyPool>();
             returnPool.pool = this;
+            tmp.SetActive(activeValue); 
             return tmp;
         }
         public void AddToPool(GameObject obj)
         {
-            stack.Push(obj);// add the object to the pool
+            stack.Push(obj);
+            // Debug.Log($"[POOL] {baseObj.name} -> Đã thêm vào stack. Tổng stack: {stack.Count}");
         }
     }
 

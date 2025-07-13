@@ -12,6 +12,10 @@ namespace MRX.DefenseGameV1
         public const string PLAYER_HP = "Player_HP";
         public const string PLAYER_POINT_HP = "Player_Point_HP";
         public const string PLAYER_ATK = "Player_ATK";
+        public const string PLAYER_Walk_Up = "Player_Walk_Up";
+        public const string PLAYER_Walk_Down = "Player_Walk_Down";
+        public const string PLAYER_Walk_Left = "Player_Walk_Left";
+        public const string PLAYER_Walk_Right = "Player_Walk_Right";															
         public const string PLAYER_CD = "Player_Cd";
         public const string PLAYER_POINT_ATK = "Player_Point_ATK";
         public const string PLAYER_POINT_CD = "Player_Point_Cd";
