@@ -6,6 +6,7 @@ using TMPro;
 using Unity.Services.Authentication;
 using UnityEngine.UI;
 using Unity.Services.Friends;
+using MrX.Name_Project;
 
 public class MainMenu : Panel
 {
@@ -21,6 +22,7 @@ public class MainMenu : Panel
     [SerializeField] private Button inventoryButton = null;
     [SerializeField] private Button menuButton = null;
     [SerializeField] private Button closeButton = null;
+    [SerializeField] private Button playgameButton = null;
     [SerializeField] private GameObject container = null;
 
     private bool isFriendsServiceInitialized = false;
@@ -41,7 +43,13 @@ public class MainMenu : Panel
         menuButton.onClick.AddListener(Menu);
         closeButton.onClick.AddListener(CloseBtn);
         inventoryButton.onClick.AddListener(Inventory);
+        playgameButton.onClick.AddListener(PlayGame);
         base.Initialize();
+    }
+
+    private void PlayGame()
+    {
+        GameManager.Ins.PlayGame();
     }
 
     private void CloseBtn()

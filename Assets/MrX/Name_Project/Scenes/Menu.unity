@@ -9183,6 +9183,7 @@ MonoBehaviour:
   inventoryButton: {fileID: 1873274384}
   menuButton: {fileID: 84728182}
   closeButton: {fileID: 1197091438}
+  playgameButton: {fileID: 50579351}
   container: {fileID: 1194213754}
 --- !u!1 &1077753704
 GameObject:
