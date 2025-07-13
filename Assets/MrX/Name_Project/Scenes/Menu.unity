@@ -207,7 +207,7 @@ GameObject:
   - component: {fileID: 22736104}
   - component: {fileID: 22736106}
   m_Layer: 5
-  m_Name: Leaderboards_Off
+  m_Name: LeaderboardsPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1072,7 +1072,7 @@ GameObject:
   - component: {fileID: 105226989}
   - component: {fileID: 105226991}
   m_Layer: 5
-  m_Name: Customization_Off
+  m_Name: CustomizationPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4021,7 +4021,7 @@ GameObject:
   - component: {fileID: 395779289}
   - component: {fileID: 395779291}
   m_Layer: 5
-  m_Name: Friends_Off
+  m_Name: FriendsMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4392,13 +4392,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
+  m_fontSize: 72
   m_fontSizeBase: 24
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -5113,7 +5113,7 @@ GameObject:
   - component: {fileID: 490909574}
   - component: {fileID: 490909576}
   m_Layer: 5
-  m_Name: Shop_Off
+  m_Name: ShopPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5480,7 +5480,7 @@ GameObject:
   - component: {fileID: 518437717}
   - component: {fileID: 518437720}
   m_Layer: 5
-  m_Name: Auth_Off
+  m_Name: AuthenticationPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5879,7 +5879,7 @@ GameObject:
   - component: {fileID: 528999035}
   - component: {fileID: 528999037}
   m_Layer: 5
-  m_Name: GetInput_Off
+  m_Name: InputPopup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6669,7 +6669,7 @@ GameObject:
   - component: {fileID: 604902825}
   - component: {fileID: 604902827}
   m_Layer: 5
-  m_Name: Inventory_Off
+  m_Name: InventoryPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6761,7 +6761,7 @@ GameObject:
   - component: {fileID: 616096776}
   - component: {fileID: 616096778}
   m_Layer: 0
-  m_Name: MenuManager
+  m_Name: _MenuManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9093,7 +9093,7 @@ GameObject:
   - component: {fileID: 1060406731}
   - component: {fileID: 1060406733}
   m_Layer: 5
-  m_Name: Main_On
+  m_Name: MainMenuPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10010,7 +10010,7 @@ GameObject:
   - component: {fileID: 1169754371}
   - component: {fileID: 1169754373}
   m_Layer: 5
-  m_Name: Error_Off
+  m_Name: ErrorMessagePanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10836,7 +10836,7 @@ GameObject:
   - component: {fileID: 1203988077}
   - component: {fileID: 1203988079}
   m_Layer: 5
-  m_Name: ActionConfirm_Off
+  m_Name: ActionConfirmPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12426,7 +12426,7 @@ GameObject:
   - component: {fileID: 1403135243}
   - component: {fileID: 1403135245}
   m_Layer: 5
-  m_Name: PlayerProfile_Off
+  m_Name: PlayerProfilePanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15327,7 +15327,7 @@ GameObject:
   - component: {fileID: 1773076150}
   - component: {fileID: 1773076152}
   m_Layer: 5
-  m_Name: Loading_Off
+  m_Name: LoadingScreen
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19543,8 +19543,8 @@ SceneRoots:
   - {fileID: 547379680}
   - {fileID: 1290259796}
   - {fileID: 1666693968}
-  - {fileID: 519420032}
   - {fileID: 616096776}
-  - {fileID: 1551208294}
   - {fileID: 397098728}
+  - {fileID: 519420032}
+  - {fileID: 1551208294}
   - {fileID: 953800979}
